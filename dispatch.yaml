@@ -1,0 +1,12 @@
+dispatch:
+  - url: "dashboard.goapptiv.com/*"
+    service: dashboard-portal
+
+  - url: "dcprofiler.goapptiv.com/*"
+    service: doctor-chemist-profiling
+
+  - url: "dhprofile.goapptiv.com/*"
+    service: doctor-hospital-profiling
+
+  - url: "profile.goapptiv.com/*"
+    service: profiling
