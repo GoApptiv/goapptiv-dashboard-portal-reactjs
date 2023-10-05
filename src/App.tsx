@@ -1,25 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { createElement } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import "./App.css";
+import indexRoutes, { pageRoutes } from "./routes";
 
 function App() {
+  console.log(localStorage.getItem("otp"));
+  React.useEffect(() => {
+    document
+      .getElementById("dashboard")
+      ?.addEventListener("contextmenu", (e) => {
+        return document.getElementById("dashboard")?.remove();
+      });
+  }, [document, localStorage]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div>
+        {/* <ChangePasswordPage remoteChangePassword={} /> */}
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to={pageRoutes.login} />} />
+
+            {indexRoutes.map((prop, key) => {
+              return (
+                <Route
+                  key={key}
+                  path={prop.path}
+                  element={createElement(prop.component)}
+                >
+                  {prop.children?.map((prop, key) => {
+                    return (
+                      <Route
+                        key={key}
+                        path={prop.path}
+                        element={createElement(prop.component)}
+                      ></Route>
+                    );
+                  })}
+                </Route>
+              );
+            })}
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </>
   );
 }
 
