@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { pageRoutes } from "../../routes";
 import CryptoJS from "crypto-js";
+import { Constants } from "../../common/Constants";
 
 type Props = {
   remoteChangePassword: ChangePassword;
@@ -31,8 +32,8 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "90%",
-  height: "90%",
+  width: "70%",
+  height: "70%",
   bgcolor: "background.paper",
   border: "2px solid #000",
   borderRadius: "10px",
@@ -72,35 +73,20 @@ const ChangePasswordModal: React.FC<Props> = ({
   };
   const [passwordError, setPasswordError] = useState<string[]>([]);
 
-  const secretPass = "12345";
+  const encrptyValue = (value: string) => {
+    let Cryptokey = CryptoJS.enc.Utf8.parse(Constants.CRYPTO_KEY);
+    let encrptyed = CryptoJS.AES.encrypt(value, Cryptokey, {
+      mode: CryptoJS.mode.ECB,
+    }).toString();
+    return encrptyed;
+  };
+
   const onSubmit = async (data: FormFields) => {
-    var iv = CryptoJS.enc.Hex.parse("");
-    // let payload = {
-    //   password: CryptoJS.AES.encrypt(
-    //     JSON.stringify(data.oldPassword),
-    //     secretPass,
-    //     { iv: iv }
-    //   ).toString(),
-    //   new_password: CryptoJS.AES.encrypt(
-    //     JSON.stringify(data.newPassword),
-    //     secretPass
-    //   ).toString(),
-    //   confirm_new_password: CryptoJS.AES.encrypt(
-    //     JSON.stringify(data.confirmNewPassword),
-    //     secretPass
-    //   ).toString(),
-    // };
-    // console.log(payload, "payload");
     let payload = {
-      password: btoa(data.oldPassword),
-      new_password: btoa(data.newPassword),
-      confirm_new_password: btoa(data.confirmNewPassword),
+      password: encrptyValue(data.oldPassword),
+      new_password: encrptyValue(data.newPassword),
+      confirm_new_password: encrptyValue(data.confirmNewPassword),
     };
-    // let payload = {
-    //   password: data.oldPassword,
-    //   new_password: data.newPassword,
-    //   confirm_new_password: data.confirmNewPassword,
-    // };
     setLoading(true);
     let result = await remoteChangePassword.change(payload);
     if (result.status == 200) {
@@ -140,7 +126,7 @@ const ChangePasswordModal: React.FC<Props> = ({
           height={"90%"}
         >
           <Stack
-            width={"40%"}
+            width={"30%"}
             alignItems={"center"}
             spacing={2}
             border="40px solid #14008D"

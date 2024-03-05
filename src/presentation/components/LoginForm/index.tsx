@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { LoggedInUser } from "../../../domain/usages/auth/logged-in-user";
@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Constants } from "../../../common/Constants";
+import CryptoJS from "crypto-js";
 
 type OtpLoginFormInput = {
   user_name: string;
@@ -37,31 +39,25 @@ const LoginForm: React.FC<Props> = ({ remoteUserLogin, loggedInUser }) => {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
+  const encrptyValue = (value: string) => {
+    let Cryptokey = CryptoJS.enc.Utf8.parse(Constants.CRYPTO_KEY);
+    let encrptyed = CryptoJS.AES.encrypt(value, Cryptokey, {
+      mode: CryptoJS.mode.ECB,
+    }).toString();
+    return encrptyed;
+  };
+
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
   };
-  // const secretPass = "12345";
   const onSubmit: SubmitHandler<OtpLoginFormInput> = async (data) => {
-    // const iv = CryptoJS.enc.Hex.parse("Sharan Raj");
-    // let payload = {
-    //   user_name: data.user_name,
-    //   password: CryptoJS.AES.encrypt(
-    //     JSON.stringify(data.password),
-    //     secretPass,
-    //     { iv: iv }
-    //   ).toString(),
-    // };
-    // let payload = {
-    //   user_name: data.user_name,
-    //   password: data.password,
-    // };
     let payload = {
       user_name: data.user_name,
-      password: btoa(data.password),
+      password: encrptyValue(data.password),
     };
-    console.log(payload, "payload");
+
     setLoadingLogin(true);
     let result = await remoteUserLogin.login(payload);
 
@@ -79,6 +75,7 @@ const LoginForm: React.FC<Props> = ({ remoteUserLogin, loggedInUser }) => {
       Swal.fire("Error", "Some Error occured Please try again Later", "error");
     }
   };
+
   return (
     <Stack spacing={2}>
       <Stack>

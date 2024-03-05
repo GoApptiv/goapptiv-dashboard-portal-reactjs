@@ -5,7 +5,6 @@ import "./App.css";
 import indexRoutes, { pageRoutes } from "./routes";
 
 function App() {
-  console.log(localStorage.getItem("otp"));
   React.useEffect(() => {
     document
       .getElementById("dashboard")
@@ -16,7 +15,6 @@ function App() {
   return (
     <>
       <div>
-        {/* <ChangePasswordPage remoteChangePassword={} /> */}
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Navigate to={pageRoutes.login} />} />

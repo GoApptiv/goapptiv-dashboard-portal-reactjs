@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 import Navbar from "../components/Navbar";
 import { LoggedInUser } from "../../domain/usages/auth/logged-in-user";
 import { pageRoutes } from "../../routes";
@@ -10,6 +10,8 @@ import ChangePasswordModal from "../components/ChangePasswordModal";
 import { CheckChangePassword } from "../../domain/usages/auth/check-change-password";
 import { ChangePassword } from "../../domain/usages/auth/change-password";
 import Swal from "sweetalert2";
+import { Constants } from "../../common/Constants";
+import CryptoJS from "crypto-js";
 
 type Props = {
   loggedInUser: LoggedInUser;
@@ -36,11 +38,15 @@ const DashboardPage = (props: Props) => {
 
   const CheckForChangePassword = async () => {
     let result = await props.remoteCheckChangePassword.check();
-    if (result.status == 200 && result.data.can_change_password) {
+    if (result && result.status == 200 && result.data.can_change_password) {
       setShowChangePasswordModal(true);
-    } else if (result.status == 200 && !result.data.can_change_password) {
+    } else if (
+      result &&
+      result.status == 200 &&
+      !result.data.can_change_password
+    ) {
       fetchDashboardLinks();
-    } else if (result.data.message) {
+    } else if (result && result.data.message) {
       Swal.fire(result.data.message, "", "error");
     }
   };
@@ -61,17 +67,35 @@ const DashboardPage = (props: Props) => {
       password: "",
     });
     navigate(pageRoutes.login);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const fetchDashboardLinks = async () => {
     let links = await props.remoteFetchDashboards.fetch();
-    if (links.dashboards) {
+    if (links && links.dashboards && links.dashboards.length > 0) {
       setDashboardLink(links.dashboards);
     }
-    if (dashboardUrl?.length == 0 || dashboardUrl == "") {
-      setDashboardUrl(links.dashboards[0].link);
+    if (
+      links.dashboards &&
+      links.dashboards.length > 0 &&
+      (dashboardUrl?.length == 0 || dashboardUrl == "")
+    ) {
+      setDashboardUrl(decryptDasboardURL(links.dashboards[0].link));
       setSelectedDashboardLink(links.dashboards[0].link);
       setSelectedDashboard(links.dashboards[0]?.name);
+    }
+    if (links && links.dashboards && links.dashboards.length == 0) {
+      Swal.fire({
+        title: "No Dashboards Found",
+        icon: "error",
+        confirmButtonText: "Logout",
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          logout();
+        }
+      });
     }
   };
 
@@ -104,12 +128,24 @@ const DashboardPage = (props: Props) => {
     };
   }, []);
 
+  const decryptDasboardURL = (url: string) => {
+    if (url) {
+      let Cryptokey = CryptoJS.enc.Utf8.parse(Constants.CRYPTO_KEY);
+      let decrypted = CryptoJS.AES.decrypt(url, Cryptokey, {
+        mode: CryptoJS.mode.ECB,
+      });
+      return decrypted.toString(CryptoJS.enc.Utf8);
+    }
+    return "";
+  };
+
   const onDashboardChange = (e?: any) => {
     setSelectedDashboard(e?.target.value);
     dashboardLink?.map((data, key) => {
       if (e.target.value === data.name) {
         setSelectedDashboardLink(data.link);
-        setDashboardUrl(data.link);
+
+        setDashboardUrl(decryptDasboardURL(data.link));
       }
     });
   };
@@ -126,14 +162,14 @@ const DashboardPage = (props: Props) => {
 
   return (
     <div
+      style={{ height: 800 }}
       onMouseEnter={() => {
         setOnFrame(true);
         nameList();
-        setDashboardUrl(selectedDashboardLink);
+        setDashboardUrl(decryptDasboardURL(selectedDashboardLink));
       }}
       onMouseLeave={() => {
         setDashboardUrl("");
-        // setNames([]);
 
         setOnFrame(false);
       }}
@@ -145,35 +181,27 @@ const DashboardPage = (props: Props) => {
         onDashboardChange={onDashboardChange}
         selectedDashboard={selectedDashboard}
       />
-
-      <div className=" ml-[13%] pt-[5%] mr-[8%]  ">
-        <div>
-          {onFrame ? (
-            <div className=" absolute top-[50%] left-[45%] text-center">
-              <CircularProgress />
-              <Typography>Loading Data... </Typography>
-            </div>
-          ) : (
-            <Typography
-              fontSize={"large"}
-              className="absolute top-[50%] left-[30%] "
-            >
-              Please make sure that the cursor is on the window to load the data
-            </Typography>
-          )}
-          {onFrame && (
+      <Stack height={1000} alignItems={"center"} justifyContent={"center"}>
+        {onFrame && dashboardUrl ? (
+          <Stack height={"100%"} width={"100%"} marginTop={20}>
             <iframe
               id="dashboard"
-              height="85%"
+              height={1000}
               width="100%"
               src={dashboardUrl}
               frameBorder={0}
               allowFullScreen
               className="right-[0%] fixed top-[15%]"
             />
-          )}
-        </div>
-      </div>
+          </Stack>
+        ) : (
+          <Typography variant="h6">
+            {" "}
+            Please make sure that the cursor is on the window to load the data
+          </Typography>
+        )}
+      </Stack>
+
       <br />
       <br />
       <br />

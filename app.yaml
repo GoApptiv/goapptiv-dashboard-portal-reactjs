@@ -1,8 +1,8 @@
 # [START runtime]
 service: dashboard-portal
-runtime: python27
-threadsafe: yes
-api_version: 1
+runtime: python312
+# threadsafe: yes
+# api_version: 1
 # [END runtime]
 
 handlers:
@@ -15,19 +15,3 @@ handlers:
     static_files: build/index.html
     upload: build/index.html
     secure: always
-
-# Temporary setting to keep gcloud from uploading not required files for deployment
-skip_files:
-  - ^node_modules$
-  - ^app\.yaml
-  - ^README\..*
-  - \.gitignore
-  - ^\.git$
-  - ^grunt\.js
-  - ^src$
-  - ^e2e$
-  - \.editorconfig
-  - ^karma\.config\.js
-  - ^package\.json
-  - ^protractor\.conf\.js
-  - ^tslint\.json

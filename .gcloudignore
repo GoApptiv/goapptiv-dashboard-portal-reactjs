@@ -1,0 +1,9 @@
+node_modules/
+app.yaml
+README.\*
+.gitignore
+.git/
+src/
+package.json
+package-lock.json
+tsconfig.json
