@@ -162,7 +162,7 @@ const DashboardPage = (props: Props) => {
 
   return (
     <div
-      style={{ height: 800 }}
+      style={{ height: 700, overflow: "scroll" }}
       onMouseEnter={() => {
         setOnFrame(true);
         nameList();
