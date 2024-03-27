@@ -13,35 +13,33 @@ function App() {
       });
   }, [document, localStorage]);
   return (
-    <>
-      <div>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to={pageRoutes.login} />} />
+    <div style={{ overflow: "hidden", height: "100vh" }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to={pageRoutes.login} />} />
 
-            {indexRoutes.map((prop, key) => {
-              return (
-                <Route
-                  key={key}
-                  path={prop.path}
-                  element={createElement(prop.component)}
-                >
-                  {prop.children?.map((prop, key) => {
-                    return (
-                      <Route
-                        key={key}
-                        path={prop.path}
-                        element={createElement(prop.component)}
-                      ></Route>
-                    );
-                  })}
-                </Route>
-              );
-            })}
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </>
+          {indexRoutes.map((prop, key) => {
+            return (
+              <Route
+                key={key}
+                path={prop.path}
+                element={createElement(prop.component)}
+              >
+                {prop.children?.map((prop, key) => {
+                  return (
+                    <Route
+                      key={key}
+                      path={prop.path}
+                      element={createElement(prop.component)}
+                    ></Route>
+                  );
+                })}
+              </Route>
+            );
+          })}
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 
