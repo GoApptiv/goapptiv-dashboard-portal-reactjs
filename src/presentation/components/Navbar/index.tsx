@@ -19,6 +19,7 @@ import { User } from "../../../domain/models/auth/user";
 import { Button, FormControl, Select, Stack } from "@mui/material";
 import DropDownLoading from "../DropdownSkeleton";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { Constants } from "../../../common/Constants";
 
 type Props = {
   loggedInUser: LoggedInUser;
@@ -26,9 +27,37 @@ type Props = {
   names: string[];
   onDashboardChange: Function;
   selectedDashboard: string;
+  onFrame: boolean;
 };
+
 const ResponsiveAppBar = (props: Props) => {
   const navigate = useNavigate();
+  const [timeLeft, setTimeLeft] = React.useState(Constants.LOGOUT_TIME);
+
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+
+    if (!props.onFrame) {
+      setTimeLeft(Constants.LOGOUT_TIME);
+      timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer!);
+            handleLogout();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (timer) clearInterval(timer);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [props.onFrame]);
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -66,6 +95,13 @@ const ResponsiveAppBar = (props: Props) => {
     localStorage.removeItem("user");
   }
 
+  const formatTime = (seconds: number) => {
+    const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const secs = String(seconds % 60).padStart(2, "0");
+    return `${hours}:${minutes}:${secs}`;
+  };
+
   return (
     <AppBar position="fixed" sx={{ bgcolor: "white" }}>
       <Container maxWidth="xl">
@@ -76,7 +112,7 @@ const ResponsiveAppBar = (props: Props) => {
             <FormControl
               size="small"
               sx={{
-                width: "80%",
+                width: "60%",
                 alignItems: "center",
                 justifyContent: "center",
               }}
@@ -84,7 +120,7 @@ const ResponsiveAppBar = (props: Props) => {
               <Select
                 value={props.selectedDashboard}
                 sx={{
-                  width: "80%",
+                  width: "60%",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -135,6 +171,34 @@ const ResponsiveAppBar = (props: Props) => {
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
+          <Box
+            sx={{
+              width: 180,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 2,
+              backgroundColor: "background.default",
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+              padding: 1,
+              mr: 10,
+            }}
+          >
+            <Typography
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                color: "error.main",
+                fontWeight: 500,
+              }}
+            >
+              Session timeout:&nbsp;
+              <Typography sx={{ fontWeight: 600 }}>
+                HH:MM:SS {formatTime(timeLeft)}
+              </Typography>
+            </Typography>
+          </Box>
           <Button onClick={handleLogout}>
             <Stack direction={"row"} alignItems={"center"} spacing={1}>
               <Typography

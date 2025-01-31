@@ -19,12 +19,14 @@ import { useNavigate } from "react-router-dom";
 import { pageRoutes } from "../../routes";
 import CryptoJS from "crypto-js";
 import { Constants } from "../../common/Constants";
+import HTTPStatusCode from "../../domain/enums/httpStatusCode";
 
 type Props = {
   remoteChangePassword: ChangePassword;
   open: boolean;
   handleClose: Function;
   CheckForChangePassword: Function;
+  logout: Function;
 };
 
 const style = {
@@ -52,6 +54,7 @@ const ChangePasswordModal: React.FC<Props> = ({
   open,
   handleClose,
   CheckForChangePassword,
+  logout,
 }) => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -89,7 +92,7 @@ const ChangePasswordModal: React.FC<Props> = ({
     };
     setLoading(true);
     let result = await remoteChangePassword.change(payload);
-    if (result.status == 200) {
+    if (result.status == HTTPStatusCode.OK) {
       setLoading(false);
       handleClose();
       CheckForChangePassword();
@@ -104,6 +107,8 @@ const ChangePasswordModal: React.FC<Props> = ({
           popup: "animate__animated animate__fadeOutUp",
         },
       });
+    } else if (result.status == HTTPStatusCode.FORBIDDEN) {
+      logout();
     } else {
       setLoading(false);
       Swal.fire({
