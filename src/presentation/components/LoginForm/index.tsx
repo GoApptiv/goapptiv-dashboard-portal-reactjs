@@ -16,6 +16,7 @@ import { LoadingButton } from "@mui/lab";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Constants } from "../../../common/Constants";
 import CryptoJS from "crypto-js";
+import HTTPStatusCode from "../../../domain/enums/httpStatusCode";
 
 type OtpLoginFormInput = {
   user_name: string;
@@ -61,7 +62,7 @@ const LoginForm: React.FC<Props> = ({ remoteUserLogin, loggedInUser }) => {
     setLoadingLogin(true);
     let result = await remoteUserLogin.login(payload);
 
-    if (result.status == 200) {
+    if (result.status == HTTPStatusCode.OK) {
       loggedInUser.setToken(result.data.token);
       navigate(pageRoutes.dashboard);
     } else if (result.status == 400) {

@@ -18,8 +18,7 @@ export class RemoteFetchDashboards implements FetchDashboards {
       },
       authHeaders: true,
     });
-    if (httpResponse.status === 200) {
-      return httpResponse.data;
-    }
+
+    return httpResponse;
   }
 }

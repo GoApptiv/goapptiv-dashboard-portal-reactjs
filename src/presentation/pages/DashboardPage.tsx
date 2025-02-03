@@ -12,6 +12,7 @@ import { ChangePassword } from "../../domain/usages/auth/change-password";
 import Swal from "sweetalert2";
 import { Constants } from "../../common/Constants";
 import CryptoJS from "crypto-js";
+import HTTPStatusCode from "../../domain/enums/httpStatusCode";
 
 type Props = {
   loggedInUser: LoggedInUser;
@@ -38,11 +39,18 @@ const DashboardPage = (props: Props) => {
 
   const CheckForChangePassword = async () => {
     let result = await props.remoteCheckChangePassword.check();
-    if (result && result.status == 200 && result.data.can_change_password) {
+    if (result.status == HTTPStatusCode.FORBIDDEN) {
+      logout();
+    }
+    if (
+      result &&
+      result.status == HTTPStatusCode.OK &&
+      result.data.can_change_password
+    ) {
       setShowChangePasswordModal(true);
     } else if (
       result &&
-      result.status == 200 &&
+      result.status == HTTPStatusCode.OK &&
       !result.data.can_change_password
     ) {
       fetchDashboardLinks();
@@ -72,7 +80,17 @@ const DashboardPage = (props: Props) => {
   };
 
   const fetchDashboardLinks = async () => {
-    let links = await props.remoteFetchDashboards.fetch();
+    let reponse = await props.remoteFetchDashboards.fetch();
+    let links;
+
+    if (reponse.status == HTTPStatusCode.OK) {
+      links = reponse.data;
+    } else if (reponse.status == HTTPStatusCode.FORBIDDEN) {
+      logout();
+      Swal.fire(reponse.data.message, "", "error");
+      return;
+    }
+
     if (links && links.dashboards && links.dashboards.length > 0) {
       setDashboardLink(links.dashboards);
     }
@@ -180,6 +198,7 @@ const DashboardPage = (props: Props) => {
         names={names}
         onDashboardChange={onDashboardChange}
         selectedDashboard={selectedDashboard}
+        onFrame={onFrame}
       />
       <Stack height={1000} alignItems={"center"} justifyContent={"center"}>
         {onFrame && dashboardUrl ? (
@@ -211,6 +230,7 @@ const DashboardPage = (props: Props) => {
           open={showChangePasswordModal}
           handleClose={handleCloseShowChangePasswordModal}
           CheckForChangePassword={CheckForChangePassword}
+          logout={logout}
         />
       )}
     </div>

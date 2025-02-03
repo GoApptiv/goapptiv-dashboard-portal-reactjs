@@ -5,4 +5,5 @@ export class Constants {
   static OTP_ERROR = "OTP entered is wrong. Please enter correct OTP.";
   static AUTHORIZATION_ERROR = "You are not an authorized user.";
   static CRYPTO_KEY = "inthebeginninggg";
+  static LOGOUT_TIME = 1 * 60 * 60;
 }
