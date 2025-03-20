@@ -26,7 +26,7 @@ export class LocalJsonStorage implements JsonStorage {
    */
   add(key: string, value: any): void {
     value = JSON.stringify(value);
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
   }
 
   /**
@@ -36,7 +36,7 @@ export class LocalJsonStorage implements JsonStorage {
    * @returns
    */
   get(key: string): any {
-    let value = localStorage.getItem(key);
+    let value = sessionStorage.getItem(key);
     if (!value || value === "") return null;
     return JSON.parse(value);
   }
@@ -47,6 +47,6 @@ export class LocalJsonStorage implements JsonStorage {
    * @param key
    */
   remove(key: string): void {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   }
 }
