@@ -11,7 +11,7 @@ function App() {
       ?.addEventListener("contextmenu", (e) => {
         return document.getElementById("dashboard")?.remove();
       });
-  }, [document, localStorage]);
+  }, [document, sessionStorage]);
   return (
     <div style={{ overflow: "hidden", height: "100vh" }}>
       <BrowserRouter>

@@ -91,8 +91,8 @@ const ResponsiveAppBar = (props: Props) => {
       password: "",
     });
     navigate(pageRoutes.login);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
   }
 
   const formatTime = (seconds: number) => {
